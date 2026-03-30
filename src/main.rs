@@ -1,4 +1,5 @@
-use std::fs;
+use std::fs::{self};
+use figlet_rs::{FIGlet};
 use std::fs::File;
 use std::io;
 use std::path::Path;
@@ -26,24 +27,18 @@ enum Commands{
 }
 
 fn create<T: AsRef<Path>>(folder_path_and_name:T) -> Result<(), io::Error>{
-    match fs::create_dir(folder_path_and_name) {
-        Ok(_) => Ok(()),
-        Err(err) => {Err(err)}
-    }
+     fs::create_dir(folder_path_and_name)?;
+     Ok(())
    }
 
    fn create_file<T:AsRef<Path>>(file_path_and_name: T) -> Result<(), io::Error> {
-    match File::create_new(file_path_and_name) {
-        Ok(_) => Ok(()),
-        Err(err) => {Err(err)}
-    } 
+     File::create_new(file_path_and_name)?;
+    Ok(())
       }
 
     fn delete<T:AsRef<Path>>(path_and_name: T) -> Result<(), io::Error>{
-    match fs::remove_file(path_and_name) {
-        Ok(_) => Ok(()),
-        Err(err) => Err(err)
-    }
+     fs::remove_file(path_and_name)?;
+    Ok(())
    }   
 
    fn delete_folder<T: AsRef<Path>>(path_and_name: T) -> Result<(), io::Error> {
@@ -52,36 +47,31 @@ fn create<T: AsRef<Path>>(folder_path_and_name:T) -> Result<(), io::Error>{
 }
    // Removes a directory at this path, after removing all its contents. Use carefully!
 fn delete_folder_and_files_within<T:AsRef<Path>>(folder_path_and_name:T) -> Result<(), io::Error> {
-    match fs::remove_dir_all(folder_path_and_name) {
-        Ok(_) => Ok(()),
-        Err(err) => Err(err)
-    }
+     fs::remove_dir_all(folder_path_and_name)?;
+     Ok(())
 }
 
 fn file_details<T: AsRef<Path>>(file_path_and_name: T) -> Result<fs::Metadata, io::Error> {
-     match fs::metadata(file_path_and_name) {
-         Ok(ok) => Ok(ok),
-         Err(err) => Err(err)
-     }
+     let meta = fs::metadata(file_path_and_name)?;
+     Ok(meta)
 }
 
 fn copy<T: AsRef<Path>>(from_file_path_and_name: T, to_file_path_and_name: T) -> Result<u64, io::Error> {
-    match fs::copy(from_file_path_and_name, to_file_path_and_name) {
-        Ok(ok) => Ok(ok),
-        Err(err) => Err(err)
-    } 
+    let result = fs::copy(from_file_path_and_name, to_file_path_and_name)?;
+    Ok(result)
 }
 
 fn move_file<T: AsRef<Path>>(from_file_path_and_name: T, to_file_path_and_name: T) -> Result<(), io::Error>{
-     match fs::rename(from_file_path_and_name, to_file_path_and_name) {
-        Ok(ok) => Ok(ok),
-        Err(err) => Err(err)
-     }
+     let move_result = fs::rename(from_file_path_and_name, to_file_path_and_name)?;
+        Ok(move_result)
 }
 
 fn main() {
 
     let args = CLI::parse();
+    
+        let standard_font = FIGlet::standard().unwrap();
+            println!("{}", standard_font.convert("FILEY").unwrap());
      
    match &args.command {
        Commands::Create { folder_path_and_name } => {
@@ -118,7 +108,7 @@ fn main() {
             Err(err) => println!("{err}")
         }
        }
-
+       
        Commands::FileDetails { file_path_and_name } => {
         match file_details(file_path_and_name) {
             Ok(ok) => {
